@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 func reName(newFileName string ,fileName string){
@@ -31,12 +32,21 @@ func checkAnswer(answer string, userAnswer string,score int) int{
 	return score
 }
 
+func setTimer(input ...int){
+	userTimer := 0
+    if len(input)>0 {
+		userTimer = input[0]
+	}
+	timer := time.NewTimer(time.Duration(userTimer) * time.Second)
+	<-timer.C
+	log.Fatal("Timer expired.")
+}
 func main(){
 	fmt.Println("press 1 to rename a file or press other to do nothing.")
 	var wRename string
 	fmt.Scanln(&wRename)
 	const fileName = "problems.csv"
-	var newFileName string
+	var newFileName = fileName
 	if wRename=="1" {
 		fmt.Scanln(&newFileName)
 		reName(newFileName, fileName)
@@ -48,6 +58,9 @@ func main(){
 	// remember to close the file at the end of the program
 	defer f.Close()
     csvReader := csv.NewReader(f)
+	fmt.Println("Enter your timer: ")
+	var timer int
+	fmt.Scan(&timer)
 	for {
 		//read each line
         rec, err := csvReader.Read()
@@ -61,6 +74,7 @@ func main(){
 		answer := rec[1]
 		var userAnswer string
 		fmt.Print(question+" ")
+		setTimer(timer)
 		//input
 		fmt.Scanln(&userAnswer)
 		score = checkAnswer(answer, userAnswer, score)
@@ -68,6 +82,7 @@ func main(){
     }
 	//final score
 	fmt.Print("Your score "+strconv.Itoa(score)+" out of "+strconv.Itoa(round))
+	//change name to original
 	if wRename == "1" {
 		reName(fileName, newFileName)
 	}
